@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:kw/screens/pantalla_inicio.dart';
+import 'screens/pantalla_inicio.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -11,9 +11,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Relacion de Ejercicios Flutter',
-      theme: ThemeData(primarySwatch: Colors.green),
-      home: PantallaInicio(),
+      debugShowCheckedModeBanner: false,
+      title: 'Kraizi World',
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        fontFamily: 'MedievalSharp',
+      ),
+      home: const PantallaInicio(),
     );
   }
 }
