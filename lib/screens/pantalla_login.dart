@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PantallaLogin extends StatefulWidget {
   const PantallaLogin({super.key});
@@ -9,8 +10,43 @@ class PantallaLogin extends StatefulWidget {
 
 class _PantallaLoginState extends State<PantallaLogin> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _usuarioCorreoController = TextEditingController();
+  final TextEditingController _correoController = TextEditingController();
   final TextEditingController _contrasenaController = TextEditingController();
+  bool _cargando = false;
+
+  Future<void> _iniciarSesion() async {
+    setState(() => _cargando = true);
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _correoController.text.trim(),
+        password: _contrasenaController.text.trim(),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Inicio de sesión exitoso')),
+      );
+
+      // Aquí puedes navegar a la pantalla principal
+      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => PantallaInicio()));
+    } on FirebaseAuthException catch (e) {
+      String mensaje = 'Error al iniciar sesión';
+      if (e.code == 'user-not-found') {
+        mensaje = 'Usuario no encontrado';
+      } else if (e.code == 'wrong-password') {
+        mensaje = 'Contraseña incorrecta';
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(mensaje)),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error inesperado: $e')),
+      );
+    } finally {
+      setState(() => _cargando = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,24 +73,19 @@ class _PantallaLoginState extends State<PantallaLogin> {
               ),
               const SizedBox(height: 30),
 
-              // Usuario o correo
               TextFormField(
-                controller: _usuarioCorreoController,
+                controller: _correoController,
                 decoration: const InputDecoration(
-                  labelText: 'Usuario o correo electrónico',
+                  labelText: 'Correo electrónico',
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person),
+                  prefixIcon: Icon(Icons.email),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Introduce tu usuario o correo';
-                  }
-                  return null;
-                },
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) =>
+                    value == null || !value.contains('@') ? 'Introduce un correo válido' : null,
               ),
               const SizedBox(height: 20),
 
-              // Contraseña
               TextFormField(
                 controller: _contrasenaController,
                 decoration: const InputDecoration(
@@ -63,16 +94,11 @@ class _PantallaLoginState extends State<PantallaLogin> {
                   prefixIcon: Icon(Icons.lock),
                 ),
                 obscureText: true,
-                validator: (value) {
-                  if (value == null || value.length < 6) {
-                    return 'La contraseña debe tener al menos 6 caracteres';
-                  }
-                  return null;
-                },
+                validator: (value) =>
+                    value == null || value.length < 6 ? 'Mínimo 6 caracteres' : null,
               ),
               const SizedBox(height: 30),
 
-              // Botón de login
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1C1C1C),
@@ -85,22 +111,23 @@ class _PantallaLoginState extends State<PantallaLogin> {
                   elevation: 12,
                   shadowColor: Colors.orangeAccent,
                 ),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // Aquí iría la lógica de autenticación
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Inicio de sesión exitoso')),
-                    );
-                  }
-                },
-                child: const Text(
-                  'Entrar',
-                  style: TextStyle(
-                    fontFamily: 'MedievalSharp',
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                onPressed: _cargando
+                    ? null
+                    : () {
+                        if (_formKey.currentState!.validate()) {
+                          _iniciarSesion();
+                        }
+                      },
+                child: _cargando
+                    ? const CircularProgressIndicator(color: Colors.orangeAccent)
+                    : const Text(
+                        'Entrar',
+                        style: TextStyle(
+                          fontFamily: 'MedievalSharp',
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ],
           ),

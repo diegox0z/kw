@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "947010097069",
+    "project_id": "kraiziworld",
+    "storage_bucket": "kraiziworld.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:947010097069:android:8d7b2cb69ea40f9c329b24",
+        "android_client_info": {
+          "package_name": "com.example.kw"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_Ati0P4Vu0ZWuvjIHH4tyvGqySzhWHWY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
